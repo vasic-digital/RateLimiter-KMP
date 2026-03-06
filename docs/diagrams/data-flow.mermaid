@@ -1,0 +1,17 @@
+sequenceDiagram
+    participant Client
+    participant RateLimiter
+    participant Semaphore
+    participant Operation
+
+    Client->>RateLimiter: execute(operation)
+    RateLimiter->>RateLimiter: increment queue length
+    RateLimiter->>Semaphore: acquire()
+    Note over Semaphore: Suspends if at capacity
+    Semaphore-->>RateLimiter: permit granted
+    RateLimiter->>RateLimiter: increment active count
+    RateLimiter->>Operation: invoke operation
+    Operation-->>RateLimiter: result
+    RateLimiter->>RateLimiter: decrement active/queue
+    RateLimiter->>Semaphore: release()
+    RateLimiter-->>Client: result

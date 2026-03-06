@@ -1,0 +1,51 @@
+classDiagram
+    class RateLimiter {
+        -maxConcurrent: Int
+        -semaphore: Semaphore
+        -mutex: Mutex
+        -_activeCount: Int
+        -_queueLength: Int
+        +execute(operation): T
+        +executeWithTimeout(timeout, operation): T?
+        +getActiveCount(): Int
+        +getQueueLength(): Int
+        +isAtCapacity(): Boolean
+    }
+
+    class TokenBucket {
+        -capacity: Int
+        -refillRate: Double
+        -mutex: Mutex
+        -tokens: Int
+        -lastRefillMs: Long
+        +tryAcquire(): Boolean
+        +acquire(): Unit
+        +getAvailableTokens(): Int
+        -refillLocked(): Unit
+    }
+
+    class AdaptiveRateLimiter {
+        -minRate: Int
+        -maxRate: Int
+        -currentRate: Int
+        -baseLimiter: RateLimiter
+        -successCount: Int
+        -failureCount: Int
+        +execute(operation): T
+        +getCurrentRate(): Int
+        -onSuccess(): Unit
+        -onFailure(): Unit
+        -adjustRateLocked(delta): Unit
+    }
+
+    class OperationThrottler {
+        -windowMs: Long
+        -maxOperations: Int
+        -mutex: Mutex
+        -operations: Map
+        -counts: Map
+        +tryThrottle(operationId): Boolean
+        +clear(operationId): Unit
+    }
+
+    AdaptiveRateLimiter --> RateLimiter : composes

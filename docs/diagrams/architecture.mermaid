@@ -1,0 +1,28 @@
+graph TD
+    A[RateLimiter] -->|uses| S[Semaphore]
+    A -->|uses| M[Mutex]
+
+    B[TokenBucket] -->|uses| M
+    B -->|uses| C[Clock.System]
+
+    D[AdaptiveRateLimiter] -->|composes| A
+    D -->|uses| M
+
+    E[OperationThrottler] -->|uses| M
+    E -->|uses| C
+
+    subgraph "digital.vasic.ratelimiter"
+        A
+        B
+        D
+        E
+    end
+
+    subgraph "kotlinx.coroutines.sync"
+        S
+        M
+    end
+
+    subgraph "kotlinx.datetime"
+        C
+    end
